@@ -1,5 +1,8 @@
 package com.openclassrooms.api.model;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -9,23 +12,28 @@ import lombok.Data;
 public class Rental {
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     private String name;
-    private Double surface;
-    private Double price;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal surface;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal price;
+
     private String picture;
     
-    @Column(columnDefinition = "TEXT")
+    @Column(length = 2000)
     private String description;
     
     @ManyToOne
-    @JoinColumn(name = "owner_id", referencedColumnName = "id")
+    @JoinColumn(name = "owner_id", nullable = false, referencedColumnName = "id")
     private User ownerId;
     
-    @Column(name="created_at")
-    private String createdAt;
+    @Column(name="created_at", columnDefinition = "TIMESTAMP")
+    private Instant createdAt;
     
-    @Column(name="updated_at")
-    private String updatedAt;
+    @Column(name="updated_at", columnDefinition = "TIMESTAMP")
+    private Instant updatedAt;
 }
