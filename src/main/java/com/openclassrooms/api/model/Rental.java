@@ -3,6 +3,9 @@ package com.openclassrooms.api.model;
 import java.math.BigDecimal;
 import java.time.Instant;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -32,8 +35,10 @@ public class Rental {
     private User ownerId;
     
     @Column(name="created_at", columnDefinition = "TIMESTAMP")
+    @CreationTimestamp
     private Instant createdAt;
     
     @Column(name="updated_at", columnDefinition = "TIMESTAMP")
+    @UpdateTimestamp
     private Instant updatedAt;
 }
