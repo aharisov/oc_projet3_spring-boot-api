@@ -35,7 +35,7 @@ public class SpringSecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
             		// all requests except user registration and login should have token
-            		.requestMatchers("/api/auth/register", "/api/auth/login").permitAll() 
+            		.requestMatchers("/auth/register", "/auth/login").permitAll() 
 	        		.anyRequest().authenticated()
         		)
                 .httpBasic(Customizer.withDefaults())
