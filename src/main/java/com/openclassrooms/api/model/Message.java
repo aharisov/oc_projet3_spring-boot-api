@@ -2,6 +2,9 @@ package com.openclassrooms.api.model;
 
 import java.time.Instant;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -25,8 +28,10 @@ public class Message {
 	private Rental rentalId;
 
 	@Column(name="created_at", columnDefinition = "TIMESTAMP")
+	@CreationTimestamp
     private Instant createdAt;
     
     @Column(name="updated_at", columnDefinition = "TIMESTAMP")
+    @UpdateTimestamp
     private Instant updatedAt;
 }
