@@ -44,4 +44,9 @@ public class UserService {
 		// if user found and password is ok		
 		return true;
 	}
+	
+	public User getUserInfo(String email) {
+		// search for user with this email and simply return his data		
+		return userRepository.findByEmail(email);
+	}
 }

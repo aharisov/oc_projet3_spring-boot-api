@@ -5,8 +5,11 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.openclassrooms.api.model.User;
@@ -56,5 +59,20 @@ public class UserController {
 	    response.put("token", token);
 	    
 		return ResponseEntity.ok(response);
+	}
+	
+	@GetMapping("/auth/me")
+	public ResponseEntity<User> getUserInfo(@RequestHeader("Authorization") String rawToken) {
+		// delete the word Bearer from token string
+		String token = rawToken.replace("Bearer ", "").trim();
+		
+		// decode token and get user email		
+		Jwt decodedJwt = jwtService.decodeToken(token);
+		String email = decodedJwt.getSubject();
+		
+		// get user's data from the DB according to his email and return data		
+		User user = userService.getUserInfo(email);
+		
+		return ResponseEntity.ok(user);
 	}
 }
