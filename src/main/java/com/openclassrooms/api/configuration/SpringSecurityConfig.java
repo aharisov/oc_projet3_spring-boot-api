@@ -38,7 +38,7 @@ public class SpringSecurityConfig {
             		.requestMatchers("/auth/register", "/auth/login").permitAll() 
 	        		.anyRequest().authenticated()
         		)
-                .httpBasic(Customizer.withDefaults())
+                .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()))
                 .build();       
     }
 
