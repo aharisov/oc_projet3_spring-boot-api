@@ -3,11 +3,13 @@ package com.openclassrooms.api.controller;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -75,5 +77,13 @@ public class RentalController {
 	    response.put("rentals", rentals);
 	    
 		return ResponseEntity.ok(response);
+	}
+	
+	@GetMapping("/rentals/{id}")
+	public ResponseEntity<Optional<Rental>> getRental(@PathVariable Integer id) {
+		
+		Optional<Rental> rental = rentalService.getRentalById(id);
+	    
+		return ResponseEntity.ok(rental);
 	}
 }
