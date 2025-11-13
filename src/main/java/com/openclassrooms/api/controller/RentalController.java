@@ -1,5 +1,6 @@
 package com.openclassrooms.api.controller;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.openclassrooms.api.model.Rental;
 import com.openclassrooms.api.model.User;
+import com.openclassrooms.api.service.FileService;
 import com.openclassrooms.api.service.JWTService;
 import com.openclassrooms.api.service.RentalService;
 import com.openclassrooms.api.service.UserService;
@@ -32,15 +34,17 @@ public class RentalController {
 	private JWTService jwtService;
 	@Autowired
 	private UserService userService;
+	@Autowired
+	private FileService fileService;
 	
 	@PostMapping("/rentals")
 	public ResponseEntity<Map<String, String>> addRental(
 			@RequestPart("name") String name,
 			@RequestParam("surface") BigDecimal surface,
 			@RequestParam("price") BigDecimal price,
-	        //@RequestPart("picture") MultipartFile picture,
+	        @RequestPart("picture") MultipartFile picture,
 	        @RequestPart("description") String description,
-			@RequestHeader("Authorization") String rawToken) {
+			@RequestHeader("Authorization") String rawToken) throws IOException {
 		
 		// create new instance of rental object
 		Rental rental = new Rental();
@@ -58,6 +62,14 @@ public class RentalController {
 		rental.setPrice(price);
 		rental.setDescription(description);
 		rental.setOwnerId(user.getId());
+		
+		// save file and store URL
+	    if (picture != null && !picture.isEmpty()) {
+	        
+	    	String fileUrl = fileService.save(picture);
+	        
+	        rental.setPicture(fileUrl);
+	    }
 		
 		// save rental to the DB
 		rentalService.addRental(rental);
