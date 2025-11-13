@@ -43,7 +43,10 @@ public class JWTService {
         return this.jwtEncoder.encode(jwtEncoderParameters).getTokenValue();
     }
     
-    public Jwt decodeToken(String token) {
+    public Jwt decodeToken(String rawToken) {
+    	// delete the word Bearer from token string
+		String token = rawToken.replace("Bearer ", "").trim();
+		
     	// simply call decode methode from security config and send decoded token info    	
     	return jwtDecoder.decode(token);
     }
