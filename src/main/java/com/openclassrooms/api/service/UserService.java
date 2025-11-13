@@ -2,6 +2,7 @@ package com.openclassrooms.api.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import com.openclassrooms.api.model.User;
@@ -16,6 +17,7 @@ public class UserService {
 	@Autowired
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
+	private final JWTService jwtService;
 	
 	public void registerUser(User user) {
 		// verify if the user with the sent email exists 
@@ -48,5 +50,16 @@ public class UserService {
 	public User getUserInfo(String email) {
 		// search for user with this email and simply return his data		
 		return userRepository.findByEmail(email);
+	}
+	
+	public Integer getUserId(String rawToken) {
+		// decode token and get user email		
+		Jwt decodedJwt = jwtService.decodeToken(rawToken);
+		String email = decodedJwt.getSubject();
+		
+		// get user's data from the DB according to his email in order to know his id	
+		User user = userRepository.findByEmail(email);
+		
+		return user.getId();
 	}
 }

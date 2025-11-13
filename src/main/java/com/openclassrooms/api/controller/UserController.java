@@ -63,11 +63,9 @@ public class UserController {
 	
 	@GetMapping("/auth/me")
 	public ResponseEntity<User> getUserInfo(@RequestHeader("Authorization") String rawToken) {
-		// delete the word Bearer from token string
-		String token = rawToken.replace("Bearer ", "").trim();
 		
 		// decode token and get user email		
-		Jwt decodedJwt = jwtService.decodeToken(token);
+		Jwt decodedJwt = jwtService.decodeToken(rawToken);
 		String email = decodedJwt.getSubject();
 		
 		// get user's data from the DB according to his email and return data		

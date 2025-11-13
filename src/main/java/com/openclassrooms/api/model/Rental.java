@@ -30,9 +30,8 @@ public class Rental {
     @Column(length = 2000)
     private String description;
     
-    @ManyToOne
-    @JoinColumn(name = "owner_id", nullable = false, referencedColumnName = "id")
-    private User ownerId;
+    @Column(name = "owner_id", nullable = false)
+    private Integer ownerId;
     
     @Column(name="created_at", columnDefinition = "TIMESTAMP")
     @CreationTimestamp
