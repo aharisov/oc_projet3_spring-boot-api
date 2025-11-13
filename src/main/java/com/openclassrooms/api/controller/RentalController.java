@@ -8,20 +8,19 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.openclassrooms.api.dto.RentalDto;
 import com.openclassrooms.api.model.Rental;
-import com.openclassrooms.api.model.User;
 import com.openclassrooms.api.service.FileService;
-import com.openclassrooms.api.service.JWTService;
 import com.openclassrooms.api.service.RentalService;
 import com.openclassrooms.api.service.UserService;
 
@@ -30,8 +29,6 @@ public class RentalController {
 
 	@Autowired
 	private RentalService rentalService;
-	@Autowired
-	private JWTService jwtService;
 	@Autowired
 	private UserService userService;
 	@Autowired
@@ -46,24 +43,13 @@ public class RentalController {
 	        @RequestPart("description") String description,
 			@RequestHeader("Authorization") String rawToken) throws IOException {
 		
-		// create new instance of rental object
-		Rental rental = new Rental();
+		// create rental object from DTO passing params
+		RentalDto rentalDto = new RentalDto(name, surface, price, description);
+		Rental rental = rentalService.convertToRental(rentalDto);
 		
-		// decode token and get user email		
-		Jwt decodedJwt = jwtService.decodeToken(rawToken);
-		String email = decodedJwt.getSubject();
+		rental.setOwnerId(userService.getUserId(rawToken));
 		
-		// get user's data from the DB according to his email in order to know his id	
-		User user = userService.getUserInfo(email);
-		
-		// add data to the object
-		rental.setName(name);
-		rental.setSurface(surface);
-		rental.setPrice(price);
-		rental.setDescription(description);
-		rental.setOwnerId(user.getId());
-		
-		// save file and store URL
+		// check param and save file, store URL
 	    if (picture != null && !picture.isEmpty()) {
 	        
 	    	String fileUrl = fileService.save(picture);
@@ -97,5 +83,41 @@ public class RentalController {
 		Optional<Rental> rental = rentalService.getRentalById(id);
 	    
 		return ResponseEntity.ok(rental);
+	}
+	
+	@PutMapping("/rentals/{id}")
+	public ResponseEntity<Map<String, String>> updateRental(
+			@RequestPart("name") String name,
+			@RequestParam("surface") BigDecimal surface,
+			@RequestParam("price") BigDecimal price,
+	        @RequestPart("picture") MultipartFile picture,
+	        @RequestPart("description") String description,
+			@RequestHeader("Authorization") String rawToken,
+			@PathVariable Integer id) throws IOException {
+		
+		// create rental object from DTO passing params
+		RentalDto rentalDto = new RentalDto(name, surface, price, description);
+		Rental rental = rentalService.convertToRental(rentalDto);
+		
+		rental.setOwnerId(userService.getUserId(rawToken));
+		
+		// check param and save file, store URL
+	    if (picture != null && !picture.isEmpty()) {
+	        
+	    	String fileUrl = fileService.save(picture);
+	        
+	        rental.setPicture(fileUrl);
+	    }
+		
+	    // set rental id in order to find it in the DB	    
+	    rental.setId(id);
+	    
+		// update rental info in the DB
+		rentalService.updateRental(rental);
+		
+		Map<String, String> response = new HashMap<>();
+	    response.put("message", "Rental updated !");
+	    
+		return ResponseEntity.ok(response);
 	}
 }
