@@ -30,4 +30,18 @@ public class UserService {
 		// save user data to the DB
         userRepository.save(user);
     }
+	
+	public Boolean authUser(User user) {
+		// search for the user in the DB 		
+		User existedUser = userRepository.findByEmail(user.getEmail());
+		
+		// if user with such email not found or password is incorrect	
+		// we use common formulation in order to confuse potential hacker		
+		if (existedUser == null || !passwordEncoder.matches(user.getPassword(), existedUser.getPassword())) {
+			throw new RuntimeException("User email or password is incorrect!");
+        }
+		
+		// if user found and password is ok		
+		return true;
+	}
 }
