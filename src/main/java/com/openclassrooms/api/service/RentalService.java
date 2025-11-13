@@ -15,6 +15,10 @@ public class RentalService {
 	@Autowired
 	private final RentalRepository rentalRepository;
 	
+	public void addRental(Rental rental) {
+		rentalRepository.save(rental);
+	}
+	
 	public Iterable<Rental> getAllRentals() {
 		return rentalRepository.findAll();
 	}
