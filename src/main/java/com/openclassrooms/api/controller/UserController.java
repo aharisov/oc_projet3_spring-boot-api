@@ -19,10 +19,18 @@ public class UserController {
 	
 	@PostMapping("/auth/register")
 	public ResponseEntity<Object> userRegister(@RequestBody User data) {
+		// check if all required data is present in the request		
+		if (data.getEmail() == null || data.getEmail() == "" 
+			|| data.getPassword() == null || data.getPassword() == "" 
+			|| data.getName() == null) {
+			throw new RuntimeException("You should fill all required data!");
+		}
+		
 		// send user registration data to the service
 		userService.registerUser(data);
 		
 		// if user is registered, return response 200 with empty object
 		return ResponseEntity.ok(new HashMap<>());
 	}
+	
 }
