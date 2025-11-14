@@ -19,13 +19,11 @@ public class Message {
 	@Column(length = 2000)
 	private String message;
 	
-	@ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-	private User userId;
+	@Column(name = "user_id", nullable = false)
+	private Integer user_id;
 	
-	@ManyToOne
-    @JoinColumn(name = "rental_id", referencedColumnName = "id")
-	private Rental rentalId;
+	@Column(name = "rental_id", nullable = false)
+	private Integer rental_id;
 
 	@Column(name="created_at", columnDefinition = "TIMESTAMP")
 	@CreationTimestamp
