@@ -114,8 +114,32 @@ public class RentalController {
 		return ResponseEntity.ok(response);
 	}
 	
+	@Operation(summary = "Get rentals list")
+	@ApiResponses(value = {
+			@ApiResponse(
+					responseCode = "200", 
+					description = "Rental list received", 
+					content = @Content(
+							mediaType = "application/json",
+							examples = @ExampleObject(
+							        value = "{ \"rentals\": [{ \"id\": 1, \"name\": \"New appart\", \"surface\": 80.0, \"price\": 2000.0, \"picture\": \"http://server_url/api/uploads/image.jpg\", \"description\": \"Lorem ipsum...\", \"ownerId\": 2, \"createdAt\": 2025-11-13T16:01:16Z, \"updatedAt\": \"2025-11-13T16:01:16Z\" }] }"
+						    )
+					)
+			),
+			@ApiResponse(
+					responseCode = "400", 
+					description = "Something went wrong", 
+					content = { 
+							@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+					}
+			),
+			@ApiResponse(responseCode = "401", description = "Unauthorized user", content = @Content)
+	})
 	@GetMapping("/rentals")
-	public ResponseEntity<Map<String, Iterable<Rental>>> getAllRentals() {
+	public ResponseEntity<Map<String, Iterable<Rental>>> getAllRentals(
+			@Parameter(description = "Bearer token", required = true)
+			@RequestHeader("Authorization") String rawToken
+		) {
 		
 		Iterable<Rental> rentals = rentalService.getAllRentals();
 		
@@ -125,8 +149,33 @@ public class RentalController {
 		return ResponseEntity.ok(response);
 	}
 	
+	@Operation(summary = "Get rental")
+	@ApiResponses(value = {
+			@ApiResponse(
+					responseCode = "200", 
+					description = "Rental received", 
+					content = @Content(
+							mediaType = "application/json",
+							schema = @Schema(implementation = Rental.class)
+					)
+			),
+			@ApiResponse(
+					responseCode = "400", 
+					description = "Something went wrong", 
+					content = { 
+							@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+					}
+			),
+			@ApiResponse(responseCode = "401", description = "Unauthorized user", content = @Content)
+	})
 	@GetMapping("/rentals/{id}")
-	public ResponseEntity<Optional<Rental>> getRental(@PathVariable Integer id) {
+	public ResponseEntity<Optional<Rental>> getRental(
+			@Parameter(description = "Rental id in the database", required = true)
+			@PathVariable Integer id,
+			
+			@Parameter(description = "Bearer token", required = true)
+			@RequestHeader("Authorization") String rawToken
+		) {
 		
 		Optional<Rental> rental = rentalService.getRentalById(id);
 	    
