@@ -8,6 +8,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
@@ -18,10 +20,15 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+	@NotBlank
     private String name;
+	@NotBlank
+	@NotNull
     private String email;
     
     // avoid sending password during response
+	@NotBlank
+	@NotNull
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     
