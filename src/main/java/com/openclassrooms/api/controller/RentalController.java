@@ -61,7 +61,7 @@ public class RentalController {
 			),
 			@ApiResponse(
 					responseCode = "400", 
-					description = "Invalid credentials", 
+					description = "Something went wrong", 
 					content = { 
 							@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
 					}
@@ -133,16 +133,50 @@ public class RentalController {
 		return ResponseEntity.ok(rental);
 	}
 	
-	@PutMapping("/rentals/{id}")
+	@Operation(summary = "Rental update")
+	@ApiResponses(value = {
+			@ApiResponse(
+					responseCode = "200", 
+					description = "Rental updated", 
+					content = @Content(
+							mediaType = "application/json",
+							schema = @Schema(
+									example = "{\"message\": \"Rental updated !\"}"
+							)
+					)
+			),
+			@ApiResponse(
+					responseCode = "400", 
+					description = "Something went wrong", 
+					content = { 
+							@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+					}
+			),
+			@ApiResponse(responseCode = "401", description = "Unauthorized user", content = @Content)
+	})
+	@PutMapping(value = "/rentals/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<Map<String, String>> updateRental(
-			@RequestPart("name") String name,
-			@RequestParam("surface") BigDecimal surface,
-			@RequestParam("price") BigDecimal price,
-	        @RequestPart("picture") MultipartFile picture,
-	        @RequestPart("description") String description,
+			@Parameter(description = "Rental name", required = false)
+			@RequestPart(value="name", required = false) String name,
+			
+			@Parameter(description = "Rental surface", required = false)
+			@RequestPart(value="surface", required = false) String surface, // changed to string because form data can't be BigDecimal and causes error
+			
+			@Parameter(description = "Rental price", required = false)
+			@RequestPart(value="price", required = false) String price, // changed to string because form data can't be BigDecimal and causes error
+			
+			@Parameter(description = "Rental picture", required = false, content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE))
+	        @RequestPart(value="picture", required = false) MultipartFile picture,
+	        
+	        @Parameter(description = "Rental description", required = false)
+	        @RequestPart(value="description", required = false) String description,
 			@RequestHeader("Authorization") String rawToken,
 			@PathVariable Integer id) throws IOException {
 		
+		// convert String to required BigDecimal
+		BigDecimal surfaceNew = (surface != null && !surface.isEmpty()) ? new BigDecimal(surface) : null;
+	    BigDecimal priceNew = (price != null && !price.isEmpty()) ? new BigDecimal(price) : null;
+	    
 		Optional<Rental> existedRental = rentalService.getRentalById(id);
 		
 		if (existedRental.get().getOwnerId() != userService.getUserId(rawToken)) {
@@ -150,7 +184,7 @@ public class RentalController {
 		}
 		
 		// create rental object from DTO passing params
-		RentalDto rentalDto = new RentalDto(name, surface, price, description);
+		RentalDto rentalDto = new RentalDto(name, surfaceNew, priceNew, description);
 		Rental rental = rentalService.convertToRental(rentalDto);
 		
 		// check param and save file, store URL
