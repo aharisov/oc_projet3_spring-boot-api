@@ -85,6 +85,7 @@ public class RentalController {
 	        @Parameter(description = "Rental description", required = false)
 	        @RequestPart(value="description", required = false) String description,
 	        
+	        @Parameter(description = "Bearer token", required = true)
 			@RequestHeader("Authorization") String rawToken) throws IOException {
 		
 		// convert String to required BigDecimal
@@ -122,7 +123,7 @@ public class RentalController {
 					content = @Content(
 							mediaType = "application/json",
 							examples = @ExampleObject(
-							        value = "{ \"rentals\": [{ \"id\": 1, \"name\": \"New appart\", \"surface\": 80.0, \"price\": 2000.0, \"picture\": \"http://server_url/api/uploads/image.jpg\", \"description\": \"Lorem ipsum...\", \"ownerId\": 2, \"createdAt\": 2025-11-13T16:01:16Z, \"updatedAt\": \"2025-11-13T16:01:16Z\" }] }"
+							        value = "{ \"rentals\": [{ \"id\": 1, \"name\": \"New appart\", \"surface\": 80.0, \"price\": 2000.0, \"picture\": \"http://server_url/api/uploads/image.jpg\", \"description\": \"Lorem ipsum...\", \"ownerId\": 2, \"createdAt\": \"2025-11-13T16:01:16Z\", \"updatedAt\": \"2025-11-13T16:01:16Z\" }] }"
 						    )
 					)
 			),
@@ -219,7 +220,11 @@ public class RentalController {
 	        
 	        @Parameter(description = "Rental description", required = false)
 	        @RequestPart(value="description", required = false) String description,
-			@RequestHeader("Authorization") String rawToken,
+			
+	        @Parameter(description = "Bearer token", required = true)
+	        @RequestHeader("Authorization") String rawToken,
+	        
+	        @Parameter(description = "Rental id in the database", required = true)
 			@PathVariable Integer id) throws IOException {
 		
 		// convert String to required BigDecimal

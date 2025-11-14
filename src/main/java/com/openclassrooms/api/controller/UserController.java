@@ -18,6 +18,7 @@ import com.openclassrooms.api.service.JWTService;
 import com.openclassrooms.api.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -139,7 +140,10 @@ public class UserController {
 			@ApiResponse(responseCode = "401", description = "Unauthorized user", content = @Content)
 	})
 	@GetMapping("/auth/me")
-	public ResponseEntity<User> getUserInfo(@RequestHeader("Authorization") String rawToken) {
+	public ResponseEntity<User> getUserInfo(
+			@Parameter(description = "Bearer token", required = true)
+			@RequestHeader("Authorization") String rawToken
+		) {
 		
 		// decode token and get user email		
 		Jwt decodedJwt = jwtService.decodeToken(rawToken);
