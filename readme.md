@@ -63,7 +63,7 @@ src/
 ## Installation et lancement
 
 1. Cloner le dépôt
-2. Créer la base MySql
+2. Créer la base MySql (par exemple comme ça https://openclassrooms.com/fr/courses/6971126-implementez-vos-bases-de-donnees-relationnelles-avec-sql/7152681-installez-le-sgbd-mysql)
 3. Configurer le projet :
 - Créer dans le racine du projet un fichier .env
 - Ajoutez vos informations de connexion et votre clé secrète JWT :
@@ -141,7 +141,7 @@ src/
 ## Installation and Run Instructions
 
 1. Clone the repository
-2. Create the MySQL database
+2. Create the MySQL database (for example, like here https://openclassrooms.com/fr/courses/6971126-implementez-vos-bases-de-donnees-relationnelles-avec-sql/7152681-installez-le-sgbd-mysql)
 3. Configure the project:
 - Create a .env file at the project root
 - Add your database credentials and JWT secret key:
