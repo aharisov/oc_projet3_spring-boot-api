@@ -46,10 +46,10 @@ public class Rental {
     @Column(name="created_at", columnDefinition = "TIMESTAMP")
     @CreationTimestamp
     @Schema(description = "Date when rental was created", example = "2025-11-13T16:01:16Z", accessMode = Schema.AccessMode.READ_ONLY)
-    private Instant createdAt;
+    private Instant created_at;
     
     @Column(name="updated_at", columnDefinition = "TIMESTAMP")
     @UpdateTimestamp
     @Schema(description = "Date when rental was last updated", example = "2025-11-13T16:01:16Z", accessMode = Schema.AccessMode.READ_ONLY)
-    private Instant updatedAt;
+    private Instant updated_at;
 }

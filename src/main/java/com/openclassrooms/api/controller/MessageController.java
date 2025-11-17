@@ -12,13 +12,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.openclassrooms.api.exception.ErrorResponse;
 import com.openclassrooms.api.model.Message;
-import com.openclassrooms.api.model.User;
 import com.openclassrooms.api.service.MessageService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;

@@ -34,8 +34,8 @@ public class SpringSecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-            		// all requests except user registration and login should have token
-            		.requestMatchers("/auth/register", "/auth/login", "/v3/api-docs", "/v3/api-docs/*", "/swagger-ui/*").permitAll() 
+            		// all requests except user registration, login, swagger api, from /uploads folder should have token
+            		.requestMatchers("/auth/register", "/auth/login", "/v3/api-docs", "/v3/api-docs/*", "/swagger-ui/*", "/uploads/**").permitAll() 
 	        		.anyRequest().authenticated()
         		)
                 .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()))
