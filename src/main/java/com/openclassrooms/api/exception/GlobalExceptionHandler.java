@@ -12,13 +12,22 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-	@ExceptionHandler(Exception.class) 
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ErrorResponse> handleAllExceptions(Exception ex) {
-        ErrorResponse error = new ErrorResponse(ex.getMessage());
+	// handle missing fields
+    @ExceptionHandler(NullFieldException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ErrorResponse> handleBadRequest(NullFieldException ex) {
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST) 
-                .body(error);
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(ex.getMessage()));
+    }
+    
+    // handle wrong user data
+    @ExceptionHandler(WrongCredentialsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseEntity<ErrorResponse> handleBadRequest(WrongCredentialsException ex) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(new ErrorResponse(ex.getMessage()));
     }
 	
 	// error handling if the route not found	
