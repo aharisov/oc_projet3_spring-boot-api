@@ -94,7 +94,7 @@ public class RentalController {
 		RentalDto rentalDto = new RentalDto(name, surfaceNew, priceNew, description);
 		Rental rental = rentalService.convertToRental(rentalDto);
 		
-		rental.setOwnerId(userService.getUserId(rawToken));
+		rental.setOwner_id(userService.getUserId(rawToken));
 		
 		// check param and save file, store URL
 	    if (picture != null && !picture.isEmpty()) {
@@ -231,7 +231,7 @@ public class RentalController {
 	    
 		Optional<Rental> existedRental = rentalService.getRentalById(id);
 		
-		if (existedRental.get().getOwnerId() != userService.getUserId(rawToken)) {
+		if (existedRental.get().getOwner_id() != userService.getUserId(rawToken)) {
 			throw new RuntimeException("You can't change this rental!");
 		}
 		
@@ -250,7 +250,7 @@ public class RentalController {
 	    // set rental id in order to find it in the DB	    
 	    rental.setId(id);
 	    // set owner id because can't be null	    
-	    rental.setOwnerId(existedRental.get().getOwnerId());
+	    rental.setOwner_id(existedRental.get().getOwner_id());
 	    
 		// update rental info in the DB
 		rentalService.updateRental(rental);

@@ -41,7 +41,7 @@ public class Rental {
     
     @Column(name = "owner_id", nullable = false)
     @Schema(description = "ID of the rental owner", example = "2")
-    private Integer ownerId;
+    private Integer owner_id;
     
     @Column(name="created_at", columnDefinition = "TIMESTAMP")
     @CreationTimestamp
