@@ -66,13 +66,6 @@ public class MessageController {
 			@RequestHeader("Authorization") String rawToken
 		) {
 		
-		// check if all required data is present in the request		
-		if (data.getMessage() == null || data.getMessage() == "" 
-			|| data.getUser_id() == null || data.getUser_id() == 0 
-			|| data.getRental_id() == null || data.getRental_id() == 0) {
-			throw new RuntimeException("You should fill all required data!");
-		}
-		
 		// send message data to the service
 		messageService.addMessage(data);
 		
