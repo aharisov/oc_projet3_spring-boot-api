@@ -5,16 +5,14 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.openclassrooms.api.model.User;
 import com.openclassrooms.api.exception.ErrorResponse;
-import com.openclassrooms.api.service.JWTService;
 import com.openclassrooms.api.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,8 +30,6 @@ public class UserController {
 	
 	@Autowired
 	private UserService userService;
-	@Autowired
-	private JWTService jwtService;
 	
 	@Operation(summary = "User registration")
 	@ApiResponses(value = {
@@ -64,12 +60,6 @@ public class UserController {
 				    )
 		    )
 			@RequestBody User data) {
-		// check if all required data is present in the request		
-		if (data.getEmail() == null || data.getEmail() == "" 
-			|| data.getPassword() == null || data.getPassword() == "" 
-			|| data.getName() == null) {
-			throw new RuntimeException("You should fill all required data!");
-		}
 		
 		// send user registration data to the service
 		userService.registerUser(data);
@@ -109,17 +99,9 @@ public class UserController {
 				    )
 		    )
 			@RequestBody User data) {
-		// check if all required data is present in the request		
-		if (data.getEmail() == null || data.getEmail() == "" 
-			|| data.getPassword() == null || data.getPassword() == "") {
-			throw new RuntimeException("You should fill all required data!");
-		}
 		
-		// send user data to the service and user is found and password is ok, generate token
-		String token = "";
-		if (userService.authUser(data)) {
-			token = jwtService.generateToken(data);
-		}
+		// send user data to the service and receive token
+		String token = userService.authUser(data);
 		
 		// add token to response and return it
 		Map<String, String> response = new HashMap<>();
@@ -140,16 +122,13 @@ public class UserController {
 			@ApiResponse(responseCode = "401", description = "Unauthorized user", content = @Content)
 	})
 	@GetMapping("/auth/me")
-	public ResponseEntity<User> getUserInfo(
-			@Parameter(description = "Bearer token", required = true)
-			@RequestHeader("Authorization") String rawToken
-		) {
+	//@Parameter(description = "Bearer token", required = true)
+	public ResponseEntity<User> getUserInfo() {
 		
-		// decode token and get user email		
-		Jwt decodedJwt = jwtService.decodeToken(rawToken);
-		String email = decodedJwt.getSubject();
+		// get user email from Spring because it decodes JWT while applying security filters
+		String email = SecurityContextHolder.getContext().getAuthentication().getName();
 		
-		// get user's data from the DB according to his email and return data		
+		// get user's data from the DB	
 		User user = userService.getUserInfo(email);
 		
 		return ResponseEntity.ok(user);

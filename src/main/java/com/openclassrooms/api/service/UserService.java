@@ -2,7 +2,6 @@ package com.openclassrooms.api.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import com.openclassrooms.api.model.User;
@@ -20,6 +19,13 @@ public class UserService {
 	private final JWTService jwtService;
 	
 	public void registerUser(User user) {
+		// check if all required data is present in the request		
+		if (user.getEmail() == null || user.getEmail() == "" 
+			|| user.getPassword() == null || user.getPassword() == "" 
+			|| user.getName() == null) {
+			throw new RuntimeException("You should fill all required data!");
+		}
+				
 		// verify if the user with the sent email exists 
 		// throw exception to avoid registration with the same email
 		if (userRepository.findByEmail(user.getEmail()) != null) {
@@ -33,7 +39,7 @@ public class UserService {
         userRepository.save(user);
     }
 	
-	public Boolean authUser(User user) {
+	public String authUser(User user) {
 		// search for the user in the DB 		
 		User existedUser = userRepository.findByEmail(user.getEmail());
 		
@@ -43,8 +49,9 @@ public class UserService {
 			throw new RuntimeException("User email or password is incorrect!");
         }
 		
-		// if user found and password is ok		
-		return true;
+		String token = jwtService.generateToken(existedUser.getEmail());
+		
+		return token;
 	}
 	
 	public User getUserInfo(String email) {
@@ -52,11 +59,7 @@ public class UserService {
 		return userRepository.findByEmail(email);
 	}
 	
-	public Integer getUserId(String rawToken) {
-		// decode token and get user email		
-		Jwt decodedJwt = jwtService.decodeToken(rawToken);
-		String email = decodedJwt.getSubject();
-		
+	public Integer getUserId(String email) {
 		// get user's data from the DB according to his email in order to know his id	
 		User user = userRepository.findByEmail(email);
 		
