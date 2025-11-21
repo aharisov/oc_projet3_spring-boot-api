@@ -1,5 +1,7 @@
 package com.openclassrooms.api.service;
 
+import java.util.Optional;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -82,5 +84,14 @@ public class UserService {
 		User user = userRepository.findByEmail(email);
 		
 		return user.getId();
+	}
+	
+	public UserInfoDto getUserById(Integer id) {
+		Optional<User> user = userRepository.findById(id);
+		
+		// convert entity to the DTO	
+		UserInfoDto userInfo = mapper.map(user, UserInfoDto.class);
+		
+		return userInfo;
 	}
 }
