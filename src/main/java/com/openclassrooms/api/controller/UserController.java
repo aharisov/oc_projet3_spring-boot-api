@@ -9,10 +9,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.openclassrooms.api.model.User;
 import com.openclassrooms.api.security.SecurityUtils;
 import com.openclassrooms.api.dto.UserInfoDto;
 import com.openclassrooms.api.dto.UserLoginDto;
@@ -21,12 +19,13 @@ import com.openclassrooms.api.exception.ErrorResponse;
 import com.openclassrooms.api.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
@@ -36,20 +35,32 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 	
-	@Operation(summary = "User registration")
+	@SecurityRequirements
+	@Operation(
+		summary = "User registration",
+		description = "Does not require Bearer JWT. Returns JWT."
+	)
 	@ApiResponses(value = {
 			@ApiResponse(
 					responseCode = "200", 
 					description = "User registered", 
 					content = { 
-							@Content(mediaType = "application/json") 
+							@Content(
+									mediaType = "application/json",
+									schema = @Schema(
+											example = "{\"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"}"
+									)
+							) 
 					}
 			),
 			@ApiResponse(
 					responseCode = "400", 
 					description = "Invalid credentials", 
 					content = { 
-							@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+							@Content(
+									mediaType = "application/json", 
+									schema = @Schema(implementation = ErrorResponse.class)
+							)
 					}
 			)
 	})
@@ -58,10 +69,12 @@ public class UserController {
 			@io.swagger.v3.oas.annotations.parameters.RequestBody(
 				    description = "User register data", 
 				    required = true,
-				    content = @Content(mediaType = "application/json",
-				      schema = @Schema(implementation = User.class),
-				      examples = @ExampleObject (
-				    		  value = "{ \"name\": \"Alex\", \"email\": \"test@test.com\", \"password\": \"*******\" }")
+				    content = @Content(
+				    		mediaType = "application/json",
+				    		schema = @Schema(implementation = UserRegisterDto.class),
+				    		examples = @ExampleObject (
+				    				value = "{ \"name\": \"Alex\", \"email\": \"test@test.com\", \"password\": \"*******\" }"
+			    		    )
 				    )
 		    )
 			@RequestBody UserRegisterDto data) {
@@ -76,7 +89,11 @@ public class UserController {
 	    return ResponseEntity.ok(response);
 	}
 	
-	@Operation(summary = "User login")
+	@SecurityRequirements
+	@Operation(
+		summary = "User login",
+		description = "Does not require Bearer JWT. Returns JWT."
+	)
 	@ApiResponses(value = {
 			@ApiResponse(
 					responseCode = "200",
@@ -89,10 +106,13 @@ public class UserController {
 			    )
 			),
 			@ApiResponse(
-					responseCode = "400", 
+					responseCode = "401", 
 					description = "Invalid credentials", 
 					content = { 
-							@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+							@Content(
+									mediaType = "application/json", 
+									schema = @Schema(implementation = ErrorResponse.class)
+							)
 					}
 			)
 	})
@@ -101,12 +121,14 @@ public class UserController {
 			@io.swagger.v3.oas.annotations.parameters.RequestBody(
 				    description = "User auth data", 
 				    required = true,
-				    content = @Content(mediaType = "application/json",
-				      schema = @Schema(implementation = User.class),
-				      examples = @ExampleObject (value = "{ \"email\": \"test@test.com\", \"password\": \"*******\" }")
+				    content = @Content(
+				    		mediaType = "application/json",
+				    		schema = @Schema(implementation = UserLoginDto.class),
+				    		examples = @ExampleObject (value = "{ \"email\": \"test@test.com\", \"password\": \"*******\" }")
 				    )
 		    )
-			@RequestBody UserLoginDto data) {
+			@RequestBody UserLoginDto data
+		) {
 		
 		// send user data to the service and receive token
 		String token = userService.authUser(data);
@@ -118,13 +140,20 @@ public class UserController {
 		return ResponseEntity.ok(response);
 	}
 	
-	@Operation(summary = "Get user info")
+	@Operation(
+		summary = "Get user info",
+		description = "Requires Bearer JWT. Returns user info.",
+        security = @SecurityRequirement(name = "bearerAuth") 
+	)
 	@ApiResponses(value = {
 			@ApiResponse(
 					responseCode = "200", 
 					description = "User info received", 
 					content = { 
-							@Content(mediaType = "application/json", schema = @Schema(implementation = User.class)) 
+							@Content(
+									mediaType = "application/json", 
+									schema = @Schema(implementation = UserInfoDto.class)
+							) 
 					}
 			),
 			@ApiResponse(responseCode = "401", description = "Unauthorized user", content = @Content)
@@ -141,11 +170,27 @@ public class UserController {
 		return ResponseEntity.ok(userInfo);
 	}
 	
+	@Operation(
+			summary = "Get user info by id",
+			description = "Requires Bearer JWT. Returns user info.",
+	        security = @SecurityRequirement(name = "bearerAuth") 
+		)
+		@ApiResponses(value = {
+				@ApiResponse(
+						responseCode = "200", 
+						description = "User info received", 
+						content = { 
+								@Content(
+										mediaType = "application/json", 
+										schema = @Schema(implementation = UserInfoDto.class)
+								) 
+						}
+				),
+				@ApiResponse(responseCode = "401", description = "Unauthorized user", content = @Content)
+		})
 	@GetMapping("/user/{id}")
 	public ResponseEntity<UserInfoDto> getUserById(
-			@PathVariable Integer id,
-			
-			@RequestHeader("Authorization") String rawToken
+			@PathVariable Integer id
 		) {
 		
 		UserInfoDto userInfo = userService.getUserById(id);
