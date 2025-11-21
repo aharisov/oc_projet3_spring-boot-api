@@ -32,7 +32,7 @@ public class UserService {
 	private final PasswordEncoder passwordEncoder;
 	private final JWTService jwtService;
 	
-	public void registerUser(UserRegisterDto user) {
+	public String registerUser(UserRegisterDto user) {
 		// check if all required data is present in the request		
 		if (user.getEmail() == null || user.getPassword() == null || user.getName() == null) {
 			throw new NullFieldException("You should fill all required data!");
@@ -51,7 +51,12 @@ public class UserService {
 		User userInfo = mapper.map(user, User.class);
 		
 		// save user data to the DB
-        userRepository.save(userInfo);
+        User registeredUser = userRepository.save(userInfo);
+        
+        // generate JWT
+        String token = jwtService.generateToken(registeredUser.getEmail());
+        
+        return token;
     }
 	
 	public String authUser(UserLoginDto user) {

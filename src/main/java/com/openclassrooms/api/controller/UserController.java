@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.openclassrooms.api.model.User;
 import com.openclassrooms.api.security.SecurityUtils;
-import com.openclassrooms.api.dto.RentalInfoDto;
 import com.openclassrooms.api.dto.UserInfoDto;
 import com.openclassrooms.api.dto.UserLoginDto;
 import com.openclassrooms.api.dto.UserRegisterDto;
@@ -67,11 +66,14 @@ public class UserController {
 		    )
 			@RequestBody UserRegisterDto data) {
 		
-		// send user registration data to the service
-		userService.registerUser(data);
+		// send user registration data to the service and receive token
+		String token = userService.registerUser(data);
 		
-		// if user is registered, return response 200 with empty object
-		return ResponseEntity.ok(new HashMap<>());
+		// add token to response and return it
+		Map<String, String> response = new HashMap<>();
+	    response.put("token", token);
+	    
+	    return ResponseEntity.ok(response);
 	}
 	
 	@Operation(summary = "User login")
