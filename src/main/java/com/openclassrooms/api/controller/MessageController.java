@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.openclassrooms.api.dto.AddMessageDto;
 import com.openclassrooms.api.exception.ErrorResponse;
 import com.openclassrooms.api.model.Message;
 import com.openclassrooms.api.service.MessageService;
@@ -60,7 +61,7 @@ public class MessageController {
 				    		schema = @Schema(implementation = Message.class)
 				    )
 		    )
-			@RequestBody Message data,
+			@RequestBody AddMessageDto data,
 			
 			@Parameter(description = "Bearer token", required = true)
 			@RequestHeader("Authorization") String rawToken
