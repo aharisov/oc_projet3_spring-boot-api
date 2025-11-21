@@ -1,5 +1,7 @@
 package com.openclassrooms.api.dto;
 
+import java.time.Instant;
+
 public class UpdateRentalDto {
 	private Integer id;
 	private String name;
@@ -8,9 +10,11 @@ public class UpdateRentalDto {
     private String picture;
     private String description;
     private Integer owner_id;
+    private Instant created_at; // we need it in order to preserve it's value 
 
     // Constructor
-    public UpdateRentalDto(Integer id, String name, String surface, String price, String picture, String description, Integer owner_id) {
+    public UpdateRentalDto(Integer id, String name, String surface, String price, String picture, 
+    		String description, Integer owner_id, Instant created_at) {
         this.id = id;
     	this.name = name;
         this.surface = surface;
@@ -18,6 +22,7 @@ public class UpdateRentalDto {
         this.picture = picture;
         this.description = description;
         this.owner_id = owner_id;
+        this.created_at = created_at;
     }
 
     // Getters and Setters
@@ -41,4 +46,7 @@ public class UpdateRentalDto {
     
     public Integer getOwner_id() { return owner_id; }
     public void setOwner_id(Integer owner_id) { this.owner_id = owner_id; }
+    
+    public Instant getCreated_at() { return created_at; }
+    public void setCreated_at(Instant created_at) { this.created_at = created_at; }
 }
