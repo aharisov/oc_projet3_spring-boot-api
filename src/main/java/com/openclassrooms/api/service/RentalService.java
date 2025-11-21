@@ -1,6 +1,7 @@
 package com.openclassrooms.api.service;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -111,8 +112,11 @@ public class RentalService {
 	    // get owner id	    
 	    Integer ownerId = userService.getUserId(userEmail);
 	    
+	    // get created_at value
+	    Instant createdAt = existedRental.get().getCreated_at();
+	    
 		// create DTO object
-		UpdateRentalDto rentalDto = new UpdateRentalDto(id, name, surface, price, pictureUrl, description, ownerId);
+		UpdateRentalDto rentalDto = new UpdateRentalDto(id, name, surface, price, pictureUrl, description, ownerId, createdAt);
 		
 		// convert DTO to the Rental entity		
 		Rental rentalInfo = mapper.map(rentalDto, Rental.class);
