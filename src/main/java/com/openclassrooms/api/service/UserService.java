@@ -1,9 +1,13 @@
 package com.openclassrooms.api.service;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.openclassrooms.api.dto.UserInfoDto;
+import com.openclassrooms.api.dto.UserLoginDto;
+import com.openclassrooms.api.dto.UserRegisterDto;
 import com.openclassrooms.api.exception.NullFieldException;
 import com.openclassrooms.api.exception.UserExistsException;
 import com.openclassrooms.api.exception.WrongCredentialsException;
@@ -18,10 +22,15 @@ public class UserService {
 	
 	@Autowired
 	private final UserRepository userRepository;
+	
+	@Autowired
+	// library for the simple conversion of entities into DTOs
+    private ModelMapper mapper;
+	
 	private final PasswordEncoder passwordEncoder;
 	private final JWTService jwtService;
 	
-	public void registerUser(User user) {
+	public void registerUser(UserRegisterDto user) {
 		// check if all required data is present in the request		
 		if (user.getEmail() == null || user.getPassword() == null || user.getName() == null) {
 			throw new NullFieldException("You should fill all required data!");
@@ -36,11 +45,14 @@ public class UserService {
 		// encode password in order to stock it in the DB
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		
+		// convert user DTO to entity	
+		User userInfo = mapper.map(user, User.class);
+		
 		// save user data to the DB
-        userRepository.save(user);
+        userRepository.save(userInfo);
     }
 	
-	public String authUser(User user) {
+	public String authUser(UserLoginDto user) {
 		// search for the user in the DB 		
 		User existedUser = userRepository.findByEmail(user.getEmail());
 		
@@ -55,9 +67,14 @@ public class UserService {
 		return token;
 	}
 	
-	public User getUserInfo(String email) {
-		// search for user with this email and simply return his data		
-		return userRepository.findByEmail(email);
+	public UserInfoDto getUserInfo(String email) {
+		// search for user with this email	
+		User user = userRepository.findByEmail(email);
+		
+		// convert user entity data to DTO	
+		UserInfoDto userInfo = mapper.map(user, UserInfoDto.class);
+		
+		return userInfo;
 	}
 	
 	public Integer getUserId(String email) {

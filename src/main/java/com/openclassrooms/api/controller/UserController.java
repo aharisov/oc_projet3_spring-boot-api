@@ -5,13 +5,16 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.openclassrooms.api.model.User;
+import com.openclassrooms.api.security.SecurityUtils;
+import com.openclassrooms.api.dto.UserInfoDto;
+import com.openclassrooms.api.dto.UserLoginDto;
+import com.openclassrooms.api.dto.UserRegisterDto;
 import com.openclassrooms.api.exception.ErrorResponse;
 import com.openclassrooms.api.service.UserService;
 
@@ -59,7 +62,7 @@ public class UserController {
 				    		  value = "{ \"name\": \"Alex\", \"email\": \"test@test.com\", \"password\": \"*******\" }")
 				    )
 		    )
-			@RequestBody User data) {
+			@RequestBody UserRegisterDto data) {
 		
 		// send user registration data to the service
 		userService.registerUser(data);
@@ -98,7 +101,7 @@ public class UserController {
 				      examples = @ExampleObject (value = "{ \"email\": \"test@test.com\", \"password\": \"*******\" }")
 				    )
 		    )
-			@RequestBody User data) {
+			@RequestBody UserLoginDto data) {
 		
 		// send user data to the service and receive token
 		String token = userService.authUser(data);
@@ -123,14 +126,13 @@ public class UserController {
 	})
 	@GetMapping("/auth/me")
 	//@Parameter(description = "Bearer token", required = true)
-	public ResponseEntity<User> getUserInfo() {
-		
-		// get user email from Spring because it decodes JWT while applying security filters
-		String email = SecurityContextHolder.getContext().getAuthentication().getName();
+	public ResponseEntity<UserInfoDto> getUserInfo() {
+		// get user email 
+		String email = SecurityUtils.getCurrentUserEmail();
 		
 		// get user's data from the DB	
-		User user = userService.getUserInfo(email);
+		UserInfoDto userInfo = userService.getUserInfo(email);
 		
-		return ResponseEntity.ok(user);
+		return ResponseEntity.ok(userInfo);
 	}
 }
