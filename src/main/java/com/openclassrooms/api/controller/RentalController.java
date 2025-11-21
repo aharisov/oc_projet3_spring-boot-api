@@ -2,8 +2,8 @@ package com.openclassrooms.api.controller;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.openclassrooms.api.dto.RentalInfoDto;
 import com.openclassrooms.api.exception.ErrorResponse;
 import com.openclassrooms.api.model.Rental;
 import com.openclassrooms.api.service.RentalService;
@@ -78,8 +79,8 @@ public class RentalController {
 	        @Parameter(description = "Bearer token", required = true)
 			@RequestHeader("Authorization") String rawToken) throws IOException {
 				
-		// save rental to the DB
-		rentalService.addRental(name, surface, price, description, picture);
+		// pass rental data
+		rentalService.addRental(name, surface, price, picture, description);
 		
 		Map<String, String> response = new HashMap<>();
 	    response.put("message", "Rental created !");
@@ -109,14 +110,14 @@ public class RentalController {
 			@ApiResponse(responseCode = "401", description = "Unauthorized user", content = @Content)
 	})
 	@GetMapping("/rentals")
-	public ResponseEntity<Map<String, Iterable<Rental>>> getAllRentals(
+	public ResponseEntity<Map<String, List<RentalInfoDto>>> getAllRentals(
 			@Parameter(description = "Bearer token", required = true)
 			@RequestHeader("Authorization") String rawToken
 		) {
 		
-		Iterable<Rental> rentals = rentalService.getAllRentals();
+		List<RentalInfoDto> rentals = rentalService.getAllRentals();
 		
-		Map<String, Iterable<Rental>> response = new HashMap<>();
+		Map<String, List<RentalInfoDto>> response = new HashMap<>();
 	    response.put("rentals", rentals);
 	    
 		return ResponseEntity.ok(response);
@@ -142,7 +143,7 @@ public class RentalController {
 			@ApiResponse(responseCode = "401", description = "Unauthorized user", content = @Content)
 	})
 	@GetMapping("/rentals/{id}")
-	public ResponseEntity<Optional<Rental>> getRental(
+	public ResponseEntity<RentalInfoDto> getRental(
 			@Parameter(description = "Rental id in the database", required = true)
 			@PathVariable Integer id,
 			
@@ -150,7 +151,7 @@ public class RentalController {
 			@RequestHeader("Authorization") String rawToken
 		) {
 		
-		Optional<Rental> rental = rentalService.getRentalById(id);
+		RentalInfoDto rental = rentalService.getRentalById(id);
 	    
 		return ResponseEntity.ok(rental);
 	}
@@ -200,7 +201,7 @@ public class RentalController {
 			@PathVariable Integer id) throws IOException {
 	    
 		// update rental info in the DB
-		rentalService.updateRental(id, name, surface, price, description, picture);
+		rentalService.updateRental(id, name, surface, price, picture, description);
 		
 		Map<String, String> response = new HashMap<>();
 	    response.put("message", "Rental updated !");
