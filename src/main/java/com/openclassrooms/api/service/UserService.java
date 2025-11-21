@@ -4,6 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.openclassrooms.api.exception.NullFieldException;
+import com.openclassrooms.api.exception.UserExistsException;
+import com.openclassrooms.api.exception.WrongCredentialsException;
 import com.openclassrooms.api.model.User;
 import com.openclassrooms.api.repository.UserRepository;
 
@@ -20,16 +23,14 @@ public class UserService {
 	
 	public void registerUser(User user) {
 		// check if all required data is present in the request		
-		if (user.getEmail() == null || user.getEmail() == "" 
-			|| user.getPassword() == null || user.getPassword() == "" 
-			|| user.getName() == null) {
-			throw new RuntimeException("You should fill all required data!");
+		if (user.getEmail() == null || user.getPassword() == null || user.getName() == null) {
+			throw new NullFieldException("You should fill all required data!");
 		}
 				
 		// verify if the user with the sent email exists 
 		// throw exception to avoid registration with the same email
 		if (userRepository.findByEmail(user.getEmail()) != null) {
-			throw new RuntimeException("User with this email already exists!");
+			throw new UserExistsException("User with this email already exists!");
         }
 		
 		// encode password in order to stock it in the DB
@@ -46,7 +47,7 @@ public class UserService {
 		// if user with such email not found or password is incorrect	
 		// we use common formulation in order to confuse potential hacker		
 		if (existedUser == null || !passwordEncoder.matches(user.getPassword(), existedUser.getPassword())) {
-			throw new RuntimeException("User email or password is incorrect!");
+			throw new WrongCredentialsException("User email or password is incorrect!");
         }
 		
 		String token = jwtService.generateToken(existedUser.getEmail());

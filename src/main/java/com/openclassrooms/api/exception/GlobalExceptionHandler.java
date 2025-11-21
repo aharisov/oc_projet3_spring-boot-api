@@ -21,6 +21,15 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(ex.getMessage()));
     }
     
+    // handle user with the same email
+    @ExceptionHandler(UserExistsException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ErrorResponse> handleBadRequest(UserExistsException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(ex.getMessage()));
+    }
+    
     // handle wrong user data
     @ExceptionHandler(WrongCredentialsException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
