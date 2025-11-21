@@ -1,13 +1,18 @@
 package com.openclassrooms.api.service;
 
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.openclassrooms.api.dto.RentalDto;
+import com.openclassrooms.api.exception.WrongCredentialsException;
 import com.openclassrooms.api.model.Rental;
 import com.openclassrooms.api.repository.RentalRepository;
+import com.openclassrooms.api.security.SecurityUtils;
 
 import lombok.Data;
 
@@ -19,8 +24,36 @@ public class RentalService {
 	private final RentalRepository rentalRepository;
 	@Autowired
 	private FileService fileService;
+	@Autowired
+	private UserService userService;
 	
-	public void addRental(Rental rental) {
+	public void addRental(
+			String name, 
+			String surface, 
+			String price, 
+			String description, 
+			MultipartFile picture
+		) throws IOException {
+		// convert String to required BigDecimal
+		BigDecimal surfaceNew = (surface != null && !surface.isEmpty()) ? new BigDecimal(surface) : null;
+	    BigDecimal priceNew = (price != null && !price.isEmpty()) ? new BigDecimal(price) : null;
+	    
+		// create rental object from DTO passing params
+		RentalDto rentalDto = new RentalDto(name, surfaceNew, priceNew, description);
+		Rental rental = this.convertToRental(rentalDto);
+		
+		String ownerEmail = SecurityUtils.getCurrentUserEmail();
+		
+		rental.setOwner_id(userService.getUserId(ownerEmail));
+		
+		// check param and save file, store URL
+	    if (picture != null && !picture.isEmpty()) {
+	        
+	    	String fileUrl = fileService.save(picture);
+	        
+	        rental.setPicture(fileUrl);
+	    }
+	    
 		rentalRepository.save(rental);
 	}
 	
@@ -32,8 +65,48 @@ public class RentalService {
 		return rentalRepository.findById(id);
 	}
 	
-	public void updateRental(Rental rental) {
-		if (rentalRepository.findById(rental.getId()) != null) {
+	public void updateRental(
+			Integer id,
+			String name, 
+			String surface, 
+			String price, 
+			String description, 
+			MultipartFile picture
+		) throws IOException {
+		// convert String to required BigDecimal
+		BigDecimal surfaceNew = (surface != null && !surface.isEmpty()) ? new BigDecimal(surface) : null;
+	    BigDecimal priceNew = (price != null && !price.isEmpty()) ? new BigDecimal(price) : null;
+	    
+	    // check if rental exists in the DB
+		Optional<Rental> existedRental = this.getRentalById(id);
+		
+		// get current user's email		
+		String userEmail = SecurityUtils.getCurrentUserEmail();
+		
+		// if current user is not the owner of this rental		
+		if (existedRental.get().getOwner_id() != userService.getUserId(userEmail)) {
+			throw new WrongCredentialsException("This is not your rental!");
+		}
+		
+		// create rental object from DTO passing params
+		RentalDto rentalDto = new RentalDto(name, surfaceNew, priceNew, description);
+		Rental rental = this.convertToRental(rentalDto);
+		
+		// check param and save file, store URL
+	    if (picture != null && !picture.isEmpty()) {
+	        
+	    	String fileUrl = fileService.save(picture);
+	        
+	        rental.setPicture(fileUrl);
+	    }
+		
+	    // set rental id in order to find it in the DB	    
+	    rental.setId(id);
+	    
+	    // set owner id because can't be null	    
+	    rental.setOwner_id(existedRental.get().getOwner_id());
+		
+	    if (rentalRepository.findById(rental.getId()) != null) {
 			rentalRepository.save(rental);
 		}
 	}

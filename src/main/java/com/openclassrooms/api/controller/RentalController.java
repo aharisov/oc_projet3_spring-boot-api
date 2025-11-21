@@ -1,7 +1,6 @@
 package com.openclassrooms.api.controller;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -18,12 +17,9 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.openclassrooms.api.dto.RentalDto;
 import com.openclassrooms.api.exception.ErrorResponse;
 import com.openclassrooms.api.model.Rental;
-import com.openclassrooms.api.service.FileService;
 import com.openclassrooms.api.service.RentalService;
-import com.openclassrooms.api.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -40,10 +36,6 @@ public class RentalController {
 
 	@Autowired
 	private RentalService rentalService;
-	@Autowired
-	private UserService userService;
-	@Autowired
-	private FileService fileService;
 	
 	@Operation(summary = "Rental creation")
 	@ApiResponses(value = {
@@ -85,27 +77,9 @@ public class RentalController {
 	        
 	        @Parameter(description = "Bearer token", required = true)
 			@RequestHeader("Authorization") String rawToken) throws IOException {
-		
-		// convert String to required BigDecimal
-		BigDecimal surfaceNew = (surface != null && !surface.isEmpty()) ? new BigDecimal(surface) : null;
-	    BigDecimal priceNew = (price != null && !price.isEmpty()) ? new BigDecimal(price) : null;
-	    
-		// create rental object from DTO passing params
-		RentalDto rentalDto = new RentalDto(name, surfaceNew, priceNew, description);
-		Rental rental = rentalService.convertToRental(rentalDto);
-		
-		rental.setOwner_id(userService.getUserId(rawToken));
-		
-		// check param and save file, store URL
-	    if (picture != null && !picture.isEmpty()) {
-	        
-	    	String fileUrl = fileService.save(picture);
-	        
-	        rental.setPicture(fileUrl);
-	    }
-		
+				
 		// save rental to the DB
-		rentalService.addRental(rental);
+		rentalService.addRental(name, surface, price, description, picture);
 		
 		Map<String, String> response = new HashMap<>();
 	    response.put("message", "Rental created !");
@@ -224,36 +198,9 @@ public class RentalController {
 	        
 	        @Parameter(description = "Rental id in the database", required = true)
 			@PathVariable Integer id) throws IOException {
-		
-		// convert String to required BigDecimal
-		BigDecimal surfaceNew = (surface != null && !surface.isEmpty()) ? new BigDecimal(surface) : null;
-	    BigDecimal priceNew = (price != null && !price.isEmpty()) ? new BigDecimal(price) : null;
-	    
-		Optional<Rental> existedRental = rentalService.getRentalById(id);
-		
-		if (existedRental.get().getOwner_id() != userService.getUserId(rawToken)) {
-			throw new RuntimeException("You can't change this rental!");
-		}
-		
-		// create rental object from DTO passing params
-		RentalDto rentalDto = new RentalDto(name, surfaceNew, priceNew, description);
-		Rental rental = rentalService.convertToRental(rentalDto);
-		
-		// check param and save file, store URL
-	    if (picture != null && !picture.isEmpty()) {
-	        
-	    	String fileUrl = fileService.save(picture);
-	        
-	        rental.setPicture(fileUrl);
-	    }
-		
-	    // set rental id in order to find it in the DB	    
-	    rental.setId(id);
-	    // set owner id because can't be null	    
-	    rental.setOwner_id(existedRental.get().getOwner_id());
 	    
 		// update rental info in the DB
-		rentalService.updateRental(rental);
+		rentalService.updateRental(id, name, surface, price, description, picture);
 		
 		Map<String, String> response = new HashMap<>();
 	    response.put("message", "Rental updated !");
