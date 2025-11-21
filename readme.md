@@ -47,7 +47,7 @@ src/
  └── main/
      ├── java/
      │     ├── com.opemclassrooms.api/
-     │     ├───── com.opemclassrooms.api.configuration/
+     │     ├── com.opemclassrooms.api.configuration/
      │     ├── com.opemclassrooms.api.controller/
      │     ├── com.opemclassrooms.api.repository/
      │     ├── com.opemclassrooms.api.service/
@@ -73,7 +73,22 @@ src/
     DB_PASSWORD=password
     JWT_SECRET=secret_word
 ```
-4. Lancer l’API avec l'IDE Eclipse ou dans un console.
+4. Lancer l’application
+- Avec Maven :
+```bash
+    ./mvnw spring-boot:run
+```
+
+- Ou depuis votre IDE (Eclipse, IntelliJ) :
+
+  Clic droit sur la classe principale (com.openclassrooms.api.Application) → Run as → Spring Boot App.
+
+5. Accéder à l’API
+- URL de base : http://localhost:8080/api
+
+6. Remarques
+- Vérifiez que le dossier /uploads existe à la racine du projet pour stocker les images.
+- Le port par défaut est 8080; vous pouvez le changer dans application.properties si nécessaire.
 
 # An educational project as part of the "Full-Stack Developer – Java & Angular" training program (EN)
 
@@ -125,7 +140,7 @@ src/
  └── main/
      ├── java/
      │     ├── com.opemclassrooms.api/
-     │     ├───── com.opemclassrooms.api.configuration/
+     │     ├── com.opemclassrooms.api.configuration/
      │     ├── com.opemclassrooms.api.controller/
      │     ├── com.opemclassrooms.api.repository/
      │     ├── com.opemclassrooms.api.service/
@@ -151,4 +166,19 @@ src/
     DB_PASSWORD=password
     JWT_SECRET=secret_word
 ```
-4. Run the API from Eclipse or via the command line.
+4. Run the application
+- Using Maven:
+```bash
+    ./mvnw spring-boot:run
+```
+
+- Or using your IDE (Eclipse, IntelliJ):
+
+  Right-click the main class (com.openclassrooms.api.Application) → Run as → Spring Boot App.
+
+5. Access the API
+- Base URL: http://localhost:8080/api
+
+6. Notes
+- Make sure the /uploads folder exists in the project root for storing images.
+- Default server port is 8080; change it in application.properties if needed.
